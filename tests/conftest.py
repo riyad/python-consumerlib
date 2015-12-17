@@ -8,8 +8,8 @@ import pytest
 
 from consumerlib import (
     init_safe_message_handler, setup_consumer, TimeoutMessage)
-from tests import (Boom, break_after, setup_queue_with_dlx, setup_queue,
-                   TEST_EXCHANGE, TEST_DLX, TEST_RK)
+from tests import Boom, break_after, TEST_EXCHANGE, TEST_DLX, TEST_RK
+from consumerlib.setup import setup_queue, setup_queue_with_dlx
 
 
 @pytest.fixture
@@ -54,7 +54,7 @@ def puka_client_basic(request, amqp_url):
 
 @pytest.fixture
 def puka_client_with_simple_queue(puka_client_basic, request, queue):
-    setup_queue(puka_client_basic, queue, exchange=TEST_EXCHANGE)
+    setup_queue(puka_client_basic, queue, exchange=TEST_EXCHANGE, durable=False)
     def _delete_queue():
         puka_client_basic.wait(puka_client_basic.queue_delete(queue))
     request.addfinalizer(_delete_queue)
@@ -65,7 +65,7 @@ def puka_client_with_simple_queue(puka_client_basic, request, queue):
 def puka_client_with_catchall_queue(puka_client_basic, request, queue,
                                     failed_messages_queue):
     setup_queue_with_dlx(puka_client_basic, queue, failed_messages_queue,
-                         exchange=TEST_EXCHANGE, dlx=TEST_DLX)
+                         exchange=TEST_EXCHANGE, dlx=TEST_DLX, durable=False)
     def _delete_queues():
         puka_client_basic.wait(puka_client_basic.queue_delete(queue))
         puka_client_basic.wait(
