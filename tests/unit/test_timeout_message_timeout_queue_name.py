@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import pytest
+
 from consumerlib import TimeoutMessage, get_message_id, get_origin_queue
 
 

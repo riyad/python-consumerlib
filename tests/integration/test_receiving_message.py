@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from consumerlib import setup_consumer, init_message_handler, loop
-from consumerlib.tests import break_after, ack_after
+from tests import break_after, ack_after
 
 
 def test_calls_handler(mock_handler, puka_client, queue):

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from mock import ANY
+
 from consumerlib import setup_consumer
 
 

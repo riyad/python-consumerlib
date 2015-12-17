@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 from mock import ANY, patch
+
 import puka
 import pytest
+
 from consumerlib import init_safe_message_handler, ProtocolError
 
 

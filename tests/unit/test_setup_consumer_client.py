@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from mock import patch
+
 import puka
+
 from consumerlib import setup_consumer_client
 
 

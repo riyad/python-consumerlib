@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
-import pytest
 import json
 from mock import MagicMock, ANY
+
+import pytest
+
 from consumerlib import republish, get_origin_queue, get_filtered_headers
 
 

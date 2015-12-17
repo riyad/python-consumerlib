@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from mock import MagicMock
+
 import pytest
+
 from consumerlib import send_to_fail_queue
 
 

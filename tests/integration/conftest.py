@@ -3,7 +3,7 @@ import json
 
 import pytest
 
-from consumerlib.tests import TEST_EXCHANGE, TEST_RK
+from tests import TEST_EXCHANGE, TEST_RK
 
 
 @pytest.fixture(autouse=True)

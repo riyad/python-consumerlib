@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
-import pytest
 import json
 
-from consumerlib.tests import TEST_EXCHANGE, TEST_RK
+import pytest
+
+from tests import TEST_EXCHANGE, TEST_RK
 
 
 @pytest.fixture

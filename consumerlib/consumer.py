@@ -4,8 +4,8 @@ from functools import partial
 
 import click
 
-from . import (init_safe_message_handler, loop, setup_consumer,
-                setup_consumer_client, TimeoutMessage)
+from consumerlib import (init_safe_message_handler, loop, setup_consumer,
+                         setup_consumer_client, TimeoutMessage)
 
 
 def initialize_timeout_consumer(url, name, on_message, on_final_death=None):

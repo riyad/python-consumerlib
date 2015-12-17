@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
 from mock import patch
+
 import puka
 import pytest
+
 from consumerlib import init_message_handler, ProtocolError
-from consumerlib.tests import Boom
+from tests import Boom
 
 
 def test_calls_handler(mock_handler, mock_client, queue, amqp_message):

@@ -8,9 +8,8 @@ import pytest
 
 from consumerlib import (
     init_safe_message_handler, setup_consumer, TimeoutMessage)
-from consumerlib.tests import (
-    Boom, break_after, setup_queue_with_dlx, setup_queue,
-    TEST_EXCHANGE, TEST_DLX, TEST_RK)
+from tests import (Boom, break_after, setup_queue_with_dlx, setup_queue,
+                   TEST_EXCHANGE, TEST_DLX, TEST_RK)
 
 
 @pytest.fixture

@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from mock import patch
+
 import pytest
+
 from consumerlib import _inject_missing_headers
 
 
