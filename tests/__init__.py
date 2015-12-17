@@ -25,7 +25,6 @@ class Timer(object):
         self.interval = (self.end - self.start).total_seconds()
 
 
-
 def ack_after(func):
     def _ack_after(client, message, *args):
         func(client, message, *args)
@@ -55,44 +54,3 @@ def break_after(func, client, count=1):
 
 def fetch_message(client, queue):
     return client.wait(client.basic_get(queue, no_ack=True))
-
-
-def setup_queue(client, queue, exchange=TEST_EXCHANGE, routing_key='#'):
-    client.wait(client.exchange_declare(
-        exchange,
-        type='topic',
-        durable=False,
-    ))
-    client.wait(client.queue_declare(queue, durable=False))
-    client.wait(client.queue_bind(queue, exchange, routing_key))
-
-
-def setup_queue_with_dlx(client, queue, failed_messages_queue,
-                         exchange=TEST_EXCHANGE, routing_key='#',
-                         dlx=TEST_DLX):
-    client.wait(client.exchange_declare(
-        exchange,
-        type='topic',
-        durable=False,
-    ))
-    client.wait(client.exchange_declare(
-        dlx,
-        type='topic',
-        durable=False,
-    ))
-    client.wait(client.queue_declare(
-        queue,
-        arguments={
-            'x-dead-letter-exchange': dlx,
-            'x-dead-letter-routing-key': failed_messages_queue,
-        },
-        durable=False,
-    ))
-    client.wait(client.queue_bind(queue, exchange, routing_key))
-    client.wait(client.queue_bind(queue, dlx, queue))
-    client.wait(client.queue_declare(
-        failed_messages_queue,
-        durable=False,
-    ))
-    client.wait(client.queue_bind(failed_messages_queue, dlx,
-                                  failed_messages_queue))
