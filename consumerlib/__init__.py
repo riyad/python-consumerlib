@@ -80,11 +80,11 @@ def init_safe_message_handler(on_message, on_error):
         try:
             logger.info("calling on_message handler with: %s", message)
             on_message(client, message)
-        except Exception as e:
+        except Exception as exc:
             logger.exception("caught unhandled exception in on_message "
                              "handler for %s", message_id)
             logger.info("calling on_error handler with: %s", message)
-            on_error(client, message, e)
+            on_error(client, message, exc)
     return handle_message_safe
 
 
@@ -126,8 +126,7 @@ class TimeoutMessage(object):
     def __init__(self, message_ttl, max_deaths,
                  queue_ttl_extra=1000,
                  dead_letter_exchange=DEAD_LETTER_EXCHANGE,
-                 on_final_death=None,
-                 ):
+                 on_final_death=None):
         self.message_ttl = message_ttl
         self.max_deaths = max_deaths
         self.queue_ttl_extra = queue_ttl_extra

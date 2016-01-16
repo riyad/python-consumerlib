@@ -17,7 +17,7 @@ def initialize_timeout_consumer(url, name, on_message, on_final_death=None,
 
     if on_setup is not None:
         @click.command('setup',
-                      help='setup consumer\'s queues and bindings')
+                       help='setup consumer\'s queues and bindings')
         def _consumer_setup():
             consumer_client = setup_consumer_client(url)
             on_setup(consumer_client)
