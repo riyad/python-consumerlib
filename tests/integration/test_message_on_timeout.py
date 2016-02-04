@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 import json
 
-from consumerlib import (setup_consumer, init_safe_message_handler,
-                         loop, TimeoutMessage, get_death_count)
-from tests import break_after, ack_after, fetch_message, Boom, Timer, TEST_DLX
+from consumerlib import (setup_consumer, init_safe_message_handler, loop,
+                         TimeoutMessage, get_death_count, break_after,
+                         ack_after, fetch_message)
+from tests import Boom, Timer, TEST_DLX
 
 
 def test_message_comes_around(puka_client, queue, boom_handler):

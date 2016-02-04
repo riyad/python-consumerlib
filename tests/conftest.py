@@ -6,9 +6,9 @@ from uuid import uuid4
 import puka
 import pytest
 
-from consumerlib import (
-    init_safe_message_handler, setup_consumer, TimeoutMessage)
-from tests import Boom, break_after, TEST_EXCHANGE, TEST_DLX, TEST_RK
+from consumerlib import (init_safe_message_handler, setup_consumer,
+                         TimeoutMessage, break_after)
+from tests import Boom, TEST_EXCHANGE, TEST_DLX, TEST_RK
 from consumerlib.setup import setup_queue, setup_queue_with_dlx
 
 
