@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import logging
 
+from consumerlib import send_to_fail_queue
 from consumerlib.consumer import initialize_timeout_consumer
 from consumerlib.setup import setup_queue_with_dlx
 
@@ -29,7 +30,8 @@ def on_message(client, message):
 
 def on_final_death(client, message, exc, max_deaths):
     print "panic!!!"
-    client.basic_ack(message)
+    #client.basic_ack(message)  # gets rid of the message
+    send_to_fail_queue(client, message)  # moves message to fail queue
 
 
 if __name__ == '__main__':
