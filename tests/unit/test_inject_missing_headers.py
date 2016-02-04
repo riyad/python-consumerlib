@@ -35,6 +35,12 @@ def test_injects_x_origin_queue(mock_client, full_message, queue):
     assert full_message['headers']['x-origin-queue'] == queue
 
 
+def test_overwrites_different_x_origin_queue(mock_client, full_message, queue):
+    full_message['headers']['x-origin-queue'] = "blegh"
+    injected = _inject_missing_headers(mock_client, full_message, queue)
+    assert injected
+
+
 def test_doesnt_change_body(mock_client, message, queue, message_body):
     _inject_missing_headers(mock_client, message, queue)
     assert message['body'] == message_body

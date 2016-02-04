@@ -279,7 +279,7 @@ def _handle_protocol_error(message):
 def _inject_missing_headers(client, message, queue):
     injected = any([
         _set_message_header(message, 'x-message-id', str(uuid4())),
-        _set_message_header(message, 'x-origin-queue', queue),
+        _set_message_header(message, 'x-origin-queue', queue, overwrite=True),
     ])
     if injected:
         republish(client, message)
@@ -287,8 +287,12 @@ def _inject_missing_headers(client, message, queue):
     return injected
 
 
-def _set_message_header(message, name, value):
+def _set_message_header(message, name, value, overwrite=False):
     if name not in message['headers']:
         logger.debug("message header %s missing", name)
+        message['headers'][name] = value
+        return True
+    elif overwrite and message['headers'][name] != value:
+        logger.debug("message header %s will be overwritten", name)
         message['headers'][name] = value
         return True
