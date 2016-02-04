@@ -62,7 +62,7 @@ def init_message_handler(on_message):
             return
 
         message['body'] = _body_from_json(message)
-        logger.info("calling on_message handler with: %s", message)
+        logger.debug("calling on_message handler with: %s", message)
         on_message(client, message)
     return handle_message
 
@@ -78,12 +78,12 @@ def init_safe_message_handler(on_message, on_error):
         message_id = get_message_id(message)
         message['body'] = _body_from_json(message)
         try:
-            logger.info("calling on_message handler with: %s", message)
+            logger.debug("calling on_message handler with: %s", message)
             on_message(client, message)
         except Exception as exc:
             logger.exception("caught unhandled exception in on_message "
                              "handler for %s", message_id)
-            logger.info("calling on_error handler with: %s", message)
+            logger.debug("calling on_error handler with: %s", message)
             on_error(client, message, exc)
     return handle_message_safe
 
@@ -94,7 +94,7 @@ def init_simple_handler(on_message):
         _handle_protocol_error(message)
 
         message['body'] = _body_from_json(message)
-        logger.info("calling on_message handler with: %s", message)
+        logger.debug("calling on_message handler with: %s", message)
         on_message(client, message)
     return handle_message
 
@@ -238,7 +238,7 @@ def send_to_fail_queue(client, message, exc, max_deaths=None):
 
 
 def setup_consumer(client, queue, consumer_tag, callback):
-    logger.info("setting up consumer")
+    logger.debug("setting up consumer")
     client.basic_consume_multi(
         [dict(queue=queue, consumer_tag=consumer_tag)],
         prefetch_count=1,
@@ -248,7 +248,7 @@ def setup_consumer(client, queue, consumer_tag, callback):
 
 
 def setup_consumer_client(url):
-    logger.info("connecting consumer client")
+    logger.debug("connecting consumer client")
     consumer_client = puka.Client(url)
     consumer_client.wait(consumer_client.connect())
     return consumer_client
@@ -289,6 +289,6 @@ def _inject_missing_headers(client, message, queue):
 
 def _set_message_header(message, name, value):
     if name not in message['headers']:
-        logger.info("message header %s missing", name)
+        logger.debug("message header %s missing", name)
         message['headers'][name] = value
         return True
