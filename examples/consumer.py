@@ -12,6 +12,7 @@ from consumerlib.consumer import initialize_timeout_consumer
 from consumerlib.setup import setup_queue_with_dlx
 
 logging.getLogger().addHandler(logging.StreamHandler())
+logging.getLogger('consumerlib').setLevel(logging.INFO)
 logger = logging.getLogger(__name__)
 
 
