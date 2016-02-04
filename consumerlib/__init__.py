@@ -228,7 +228,7 @@ def loop(clients, interactive=False):
                 clients.remove(client)
 
 
-def send_to_fail_queue(client, message, exc, max_deaths=None):
+def send_to_fail_queue(client, message, exc=None, max_deaths=None):
     if max_deaths is None:
         logger.info("%s  will be sent to fail queue", get_message_id(message))
     else:
