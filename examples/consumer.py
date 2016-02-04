@@ -1,5 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+"""
+Usage:
+    python -m "examples.consumer" setup
+    python -m "examples.consumer" run --message-ttl=1000 --max-deaths=2
+"""
 import logging
 
 from consumerlib import send_to_fail_queue
