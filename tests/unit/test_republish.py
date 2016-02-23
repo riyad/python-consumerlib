@@ -4,7 +4,7 @@ from mock import MagicMock, ANY
 
 import pytest
 
-from consumerlib import republish, get_origin_queue, get_filtered_headers
+from consumerlib import republish, get_origin_queue, filter_headers
 
 
 @pytest.fixture
@@ -32,7 +32,7 @@ def test_filters_headers(mock_client, amqp_message):
         exchange=ANY,
         routing_key=ANY,
         body=ANY,
-        headers=get_filtered_headers(amqp_message),
+        headers=filter_headers(amqp_message['headers']),
     )
     assert 'x-puka-delivery-tag' not in mock_client.basic_publish.call_args[1]['headers']
 

@@ -13,6 +13,7 @@ logger = logging.getLogger(__name__)
 DEFAULT_EXCHANGE = 'amq.topic'
 DEAD_LETTER_EXCHANGE = 'consumerlib.dlx'
 
+BLACKLISTED_HEADERS = ('x-puka-delivery-tag',)
 PERSISTENT = 2
 
 
@@ -59,17 +60,20 @@ def create_queue(client, name, exchange, routing_key,
     client.wait(client.queue_bind(name, exchange, routing_key))
 
 
+def fetch_message(client, queue):
+    return client.wait(client.basic_get(queue, no_ack=True))
+
+
+def filter_headers(headers):
+    return {
+        k: v for k, v in headers.iteritems()
+        if k not in BLACKLISTED_HEADERS
+    }
+
+
 def get_death_count(message):
     return sum(death.get('count', 1)
                for death in message['headers'].get('x-death', []))
-
-
-def get_filtered_headers(message):
-    blacklisted_headers = ('x-puka-delivery-tag',)
-    return {
-        k: v for k, v in message['headers'].iteritems()
-        if k not in blacklisted_headers
-    }
 
 
 def get_message_id(message):
@@ -78,10 +82,6 @@ def get_message_id(message):
 
 def get_origin_queue(message):
     return message['headers']['x-origin-queue']
-
-
-def fetch_message(client, queue):
-    return client.wait(client.basic_get(queue, no_ack=True))
 
 
 def init_message_handler(on_message):
@@ -138,7 +138,7 @@ def republish(client, message):
         exchange='',
         routing_key=queue,
         body=_body_to_json(message),
-        headers=get_filtered_headers(message),
+        headers=filter_headers(message['headers']),
     )
     client.wait(promise)
 
@@ -202,7 +202,7 @@ class TimeoutMessage(object):
             exchange='',
             routing_key=self._timeout_queue_name(message),
             body=_body_to_json(message),
-            headers=get_filtered_headers(message),
+            headers=filter_headers(message['headers']),
             callback=partial(self._on_message_published, client, message)
         )
 
