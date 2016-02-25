@@ -1,0 +1,60 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+"""
+Requeues messages from the failed_messages queue into their orignial queue.
+
+Usage:
+    requeue_failed_messages.py amqp://guest:guest@127.0.0.1/
+    requeue_failed_messages.py amqp://guest:guest@127.0.0.1/ foo
+"""
+from __future__ import absolute_import
+from functools import partial
+import logging
+
+import click
+
+import consumerlib
+
+
+FAILED_MESSAGES_QUEUE = 'failed_messages'
+
+name = 'requeue_failed_messages'
+logging.getLogger().addHandler(logging.StreamHandler())
+logging.getLogger().setLevel(logging.INFO)
+logging.getLogger('consumerlib').setLevel(logging.WARNING)
+logger = logging.getLogger(name)
+
+
+def on_message(client, message, prefix):
+    message_id = consumerlib.get_message_id(message)
+    queue = consumerlib.get_origin_queue(message)
+    if queue.startswith(prefix):
+        consumerlib.republish(client, message)
+        logger.info("republishing %s to %s", message_id, queue)
+        client.basic_ack(message)
+    else:
+        logger.debug('not interested in %s from %s', message_id, queue)
+        client.basic_reject(message, requeue=False)
+
+
+@click.command()
+@click.argument('amqp-url')
+@click.argument('prefix', default='')
+def cli(amqp_url, prefix):
+    consumer_tag = name
+    client = consumerlib.setup_consumer_client(amqp_url)
+
+    message_count = consumerlib.count_messages(client, FAILED_MESSAGES_QUEUE)
+    logger.info('having %s failed messages', message_count)
+    on_message_ = consumerlib.init_simple_handler(
+        consumerlib.break_after(
+            partial(on_message, prefix=prefix), client, message_count))
+
+    consumerlib.setup_consumer(
+        client, FAILED_MESSAGES_QUEUE, consumer_tag, on_message_)
+
+    consumerlib.loop([client], interactive=True)
+
+
+if __name__ == "__main__":
+    cli()
