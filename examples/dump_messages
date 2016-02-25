@@ -1,0 +1,52 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+"""
+Usage:
+    dump_messages.py amqp://guest:guest@127.0.0.1/ foo
+"""
+from __future__ import absolute_import, print_function
+import datetime
+import json
+import sys
+
+import click
+
+import consumerlib
+
+
+def dump_message(client, message):
+    def _date_handler(obj):
+        if (isinstance(obj, datetime.datetime)
+                or isinstance(obj, datetime.date)):
+            return obj.isoformat()
+    print(json.dumps(message, default=_date_handler))
+    consumerlib.republish(client, message)
+    client.basic_ack(message)
+
+
+def dump_queue(client, queue):
+    message_count = consumerlib.count_messages(client, queue)
+    print(u'having {} messages'.format(message_count), file=sys.stderr)
+
+    if message_count > 0:
+        on_message = consumerlib.init_simple_handler(
+            consumerlib.break_after(dump_message, client, message_count))
+
+        consumer_tag = queue
+        consumerlib.setup_consumer(client, queue, consumer_tag, on_message)
+
+        consumerlib.loop([client], interactive=True)
+
+
+@click.command()
+@click.argument('amqp-url')
+@click.argument('queue')
+def cli(amqp_url, queue):
+    queue = str(queue)  # Puka crashes if queue is unicode o.O
+    client = consumerlib.setup_consumer_client(amqp_url)
+    dump_queue(client, queue)
+    client.wait(client.close())
+
+
+if __name__ == "__main__":
+    cli()
