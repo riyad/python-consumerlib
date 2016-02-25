@@ -1,0 +1,101 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+"""
+Usage:
+    publish_messages.py queue <amqp-url> <queue> [<message-source>]
+    publish_messages.py exchange <amqp-url> <exchange> <routing-key> [<message-source>]
+
+\b
+The following usages are equivalent:
+    publish_messages.py queue amqp://guest:guest@127.0.0.1/ foo messages.txt
+    publish_messages.py queue amqp://guest:guest@127.0.0.1/ foo < messages.txt
+    cat messages.txt | publish_messages.py queue amqp://guest:guest@127.0.0.1/ foo
+"""
+from __future__ import absolute_import, print_function
+import json
+import sys
+
+import click
+
+import consumerlib
+
+PERSISTENT = 2
+DEFAULT_HEADERS = {
+    'delivery_mode': PERSISTENT,
+}
+
+
+# puka really doesn't like unicode :/
+# e.g. AssertionError: Unsupported value type during encoding u'consumerlib.dlx' (<type 'unicode'>)
+def _using_str(val):
+    if isinstance(val, dict):
+        val = {str(k): _using_str(v) for k, v in val.iteritems()}
+    elif isinstance(val, list):
+        val = [_using_str(v) for v in val]
+    elif isinstance(val, unicode):
+        val = str(val)
+    return val
+
+
+def prepare_headers_and_body(message_string):
+    message = json.loads(message_string)
+    if 'headers' in message and 'body' in message:
+        headers = _using_str(consumerlib.filter_headers(message['headers']))
+        body = message['body']
+        if isinstance(body, dict):
+            body = json.dumps(body)
+        body = _using_str(body)
+    else:
+        headers = DEFAULT_HEADERS
+        body = str(message_string)
+    return headers, body
+
+
+def publish_messages(messages, client, exchange, routing_key):
+    for message_string in messages:
+        print(message_string)
+        headers, body = prepare_headers_and_body(message_string)
+        promise = client.basic_publish(exchange, routing_key,
+                                       headers=headers, body=body)
+        client.wait(promise)
+
+
+def read_messages(message_source):
+    messages = message_source.readlines()
+    print("Messages:", len(messages), file=sys.stderr)
+    return (message.rstrip('\n') for message in messages)
+
+
+@click.group()
+def cli():
+    pass
+
+
+@cli.command('queue')
+@click.argument('amqp-url')
+@click.argument('queue')
+@click.argument('message-source', default='-', type=click.File('r'))
+def cli_queue(amqp_url, queue, message_source):
+    exchange = ''
+    routing_key = str(queue)
+    main(amqp_url, exchange, routing_key, message_source)
+
+
+@cli.command('exchange')
+@click.argument('amqp-url')
+@click.argument('exchange')
+@click.argument('routing-key')
+@click.argument('message-source', default='-', type=click.File('r'))
+def cli_exchange(amqp_url, exchange, routing_key, message_source):
+    main(amqp_url, str(exchange), str(routing_key), message_source)
+
+
+def main(amqp_url, exchange, routing_key, message_source):
+    messages = read_messages(message_source)
+    client = consumerlib.setup_consumer_client(amqp_url)
+    publish_messages(messages, client, exchange, routing_key)
+    client.wait(client.close())
+
+
+if __name__ == '__main__':
+    cli()
