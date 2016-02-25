@@ -22,13 +22,23 @@ py.test tests/
 
 # Examples
 
-There is an example consumer in `examples/consumer.py`.
+## Cosumer
+
+There is an example consumer in [examples/consumer.py](examples/consumer.py).
 It will run and wait for messages from a queue defined by the constants at the top.
 
 ```shell
 python -m "examples.consumer" setup
 python -m "examples.consumer" run --message-ttl=1000 --max-deaths=2
 ```
+
+## Helper Scripts
+
+There are other examples that may also be used as helpers in certain cases:
+
+* [dump_messages](examples/dump_messages) dumps messages from a queue to STDOUT.
+* [publish_messages](examples/publish_messages) publishes a batch of messages to a queue directly or via exchange + routing key.
+* [requeue_failed_messages](examples/requeue_failed_messages) requeues messages from the failed_messages queue into their original queue.
 
 # Contact and Issues
 
